@@ -189,8 +189,7 @@ const execute = async (logger, rawData) => {
           enabled: sellConservativeModeEnabled,
           factor: conservativeFactor
         }
-      },
-      botOptions: { tradingViews: tradingViewsConfig }
+      }
     },
     baseAssetBalance: { total: baseAssetTotalBalance },
     openOrders
@@ -296,21 +295,6 @@ const execute = async (logger, rawData) => {
       close: candles[0].close
     };
   }
-
-  // Set trading view
-  data.tradingViews = _.map(
-    await cache.hgetall(
-      `trailing-trade-tradingview:${symbol}:`,
-      `trailing-trade-tradingview:${symbol}:*`
-    ),
-    tradingView => JSON.parse(tradingView)
-  );
-
-  const tradingViewIntervals = (tradingViewsConfig || []).map(c => c.interval);
-  // Filter out only configured interval
-  data.tradingViews = data.tradingViews.filter(tv =>
-    tradingViewIntervals.includes(tv.request.interval)
-  );
 
   // Set last candle
   data.lastCandle = cachedLatestCandle;

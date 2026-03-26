@@ -46,14 +46,6 @@ const handleLatest = async (logger, ws, payload) => {
     'trailing-trade-common:*'
   );
 
-  const cacheTradingViews = _.map(
-    await cache.hgetall(
-      'trailing-trade-tradingview:',
-      'trailing-trade-tradingview:*'
-    ),
-    tradingView => JSON.parse(tradingView)
-  );
-
   const symbolsPerPage = 12;
 
   const monitoringSymbolsCount = globalConfiguration.symbols.length;
@@ -100,8 +92,7 @@ const handleLatest = async (logger, ws, payload) => {
 
         return newSymbol;
       })
-    ),
-    tradingViews: cacheTradingViews
+    )
   };
 
   const cacheTrailingTradeQuoteEstimates =

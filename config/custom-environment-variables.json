@@ -39,13 +39,6 @@
     },
     "database": "BINANCE_MONGO_DATABASE"
   },
-  "tradingview": {
-    "host": "BINANCE_TRADINGVIEW_HOST",
-    "port": {
-      "__name": "BINANCE_TRADINGVIEW_PORT",
-      "__format": "number"
-    }
-  },
   "slack": {
     "enabled": {
       "__name": "BINANCE_SLACK_ENABLED",
@@ -324,13 +317,6 @@
         "__format": "boolean"
       },
       "cronTime": "BINANCE_JOBS_TRAILING_TRADE_INDICATOR_CRON_TIME"
-    },
-    "tradingView": {
-      "enabled": {
-        "__name": "BINANCE_JOBS_TRADING_VIEW_ENABLED",
-        "__format": "boolean"
-      },
-      "cronTime": "BINANCE_JOBS_TRADING_VIEW_INDICATOR_CRON_TIME"
     }
   }
 }

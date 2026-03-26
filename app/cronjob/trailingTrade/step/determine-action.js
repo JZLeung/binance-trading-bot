@@ -1,17 +1,12 @@
 const _ = require('lodash');
 const moment = require('moment');
-const { slack } = require('../../../helpers');
 
 const {
   isActionDisabled,
   getNumberOfBuyOpenOrders,
-  isExceedingMaxOpenTrades,
-  getAPILimit
+  isExceedingMaxOpenTrades
 } = require('../../trailingTradeHelper/common');
 const { getGridTradeOrder } = require('../../trailingTradeHelper/order');
-const {
-  shouldForceSellByTradingView
-} = require('../../trailingTradeHelper/tradingview');
 
 /**
  * Check whether current price is lower or equal than stop loss trigger price
@@ -385,31 +380,6 @@ const execute = async (logger, rawData) => {
         data,
         'sell-order-wait',
         `There is a last gird trade sell order. Wait.`
-      );
-    }
-
-    // If tradingView recommendation is sell or strong sell
-    const { shouldForceSell, forceSellMessage } = shouldForceSellByTradingView(
-      logger,
-      data
-    );
-    if (shouldForceSell) {
-      // Prevent disable by stop-loss
-      data.canDisable = false;
-
-      // Notify as it's important message for now.
-      // Eventually, should convert to logging to reduce unnecessary notifications.
-      slack.sendMessage(
-        `*${symbol}* Action - *Force sell*: \n- Message: ${forceSellMessage}`,
-        { symbol, apiLimit: getAPILimit(logger) }
-      );
-
-      // Then sell market order
-      return setSellActionAndMessage(
-        logger,
-        data,
-        'sell-stop-loss',
-        forceSellMessage
       );
     }
 

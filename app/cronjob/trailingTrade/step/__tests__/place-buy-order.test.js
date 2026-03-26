@@ -313,14 +313,6 @@ describe('place-buy-order.js', () => {
 
     describe('when min purchase amount is not configured for some reason', () => {
       beforeEach(async () => {
-        mockIsBuyAllowedByTradingView = jest.fn().mockReturnValue({
-          isTradingViewAllowed: false,
-          tradingViewRejectedReason: 'rejected reason'
-        });
-        jest.mock('../../../trailingTradeHelper/tradingview', () => ({
-          isBuyAllowedByTradingView: mockIsBuyAllowedByTradingView
-        }));
-
         const step = require('../place-buy-order');
 
         rawData = _.cloneDeep(orgRawData);
@@ -352,26 +344,16 @@ describe('place-buy-order.js', () => {
 
       doNotProcessTests();
 
-      it('saves override action', () => {
-        expect(mockSaveOverrideAction).toHaveBeenCalledWith(
-          loggerMock,
-          'BTCUPUSDT',
-          {
-            action: 'buy',
-            actionAt: expect.any(String),
-            checkTradingView: true,
-            notify: false,
-            triggeredBy: 'buy-order-trading-view'
-          },
-          'The bot queued the action to trigger the grid trade #1 for buying. rejected reason'
-        );
+      it('does not save override action', () => {
+        expect(mockSaveOverrideAction).not.toHaveBeenCalled();
       });
       it('retruns expected value', () => {
         expect(result).toMatchObject({
           buy: {
             currentPrice: 200,
             openOrders: [],
-            processMessage: 'rejected reason',
+            processMessage:
+              'Min purchase amount must be configured. Please configure symbol settings.',
             updatedAt: expect.any(Object)
           }
         });

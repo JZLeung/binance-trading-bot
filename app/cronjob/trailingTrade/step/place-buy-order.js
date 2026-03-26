@@ -5,13 +5,9 @@ const {
   isExceedAPILimit,
   getAPILimit,
   saveOrderStats,
-  saveOverrideAction,
   refreshOpenOrdersAndAccountInfo
 } = require('../../trailingTradeHelper/common');
 const { saveGridTradeOrder } = require('../../trailingTradeHelper/order');
-const {
-  isBuyAllowedByTradingView
-} = require('../../trailingTradeHelper/tradingview');
 
 /**
  * Set message and return data
@@ -56,7 +52,6 @@ const execute = async (logger, rawData) => {
     action,
     quoteAssetBalance: { free: quoteAssetFreeBalance },
     buy: { currentPrice, triggerPrice, openOrders },
-    tradingViews,
     overrideData
   } = data;
   const humanisedGridTradeIndex = currentGridTradeIndex + 1;
@@ -81,27 +76,6 @@ const execute = async (logger, rawData) => {
       data,
       `Current grid trade is not defined. Cannot place an order.`
     );
-  }
-
-  const { isTradingViewAllowed, tradingViewRejectedReason } =
-    isBuyAllowedByTradingView(logger, data);
-
-  if (isTradingViewAllowed === false) {
-    await saveOverrideAction(
-      logger,
-      symbol,
-      {
-        action: 'buy',
-        actionAt: moment().add(1, 'minutes').toISOString(),
-        triggeredBy: 'buy-order-trading-view',
-        notify: false,
-        checkTradingView: true
-      },
-      `The bot queued the action to trigger the grid trade #${humanisedGridTradeIndex} for buying.` +
-        ` ${tradingViewRejectedReason}`
-    );
-
-    return setMessage(logger, data, tradingViewRejectedReason);
   }
 
   const {
@@ -264,13 +238,6 @@ const execute = async (logger, rawData) => {
     stopPercentage,
     limitPrice,
     triggerPrice,
-    tradingViews: _.map(tradingViews, tradingView => ({
-      request: _.get(tradingView, 'request', {}),
-      result: {
-        time: _.get(tradingView, 'result.time', ''),
-        summary: _.get(tradingView, 'result.summary', {})
-      }
-    })),
     overrideData
   };
 

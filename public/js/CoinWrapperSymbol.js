@@ -35,8 +35,7 @@ class CoinWrapperSymbol extends React.Component {
       quoteAssetBalance,
       configuration: globalConfiguration,
       sendWebSocket,
-      isAuthenticated,
-      tradingViewIntervals
+      isAuthenticated
     } = this.props;
 
     let monitoringStatus = '';
@@ -121,7 +120,6 @@ class CoinWrapperSymbol extends React.Component {
             globalConfiguration={globalConfiguration}
             sendWebSocket={sendWebSocket}
             isAuthenticated={isAuthenticated}
-            tradingViewIntervals={tradingViewIntervals}
           />
           <SymbolDeleteIcon
             symbolInfo={symbolInfo}

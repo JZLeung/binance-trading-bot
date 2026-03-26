@@ -68,6 +68,10 @@ const handleSettingUpdate = async (logger, ws, payload) => {
   mergedConfiguration.buy.minPurchaseAmount = -1;
   mergedConfiguration.buy.maxPurchaseAmount = -1;
   mergedConfiguration.buy.lastBuyPriceRemoveThreshold = -1;
+  mergedConfiguration.botOptions = _.omit(mergedConfiguration.botOptions, [
+    'tradingViews',
+    'tradingViewOptions'
+  ]);
 
   logger.info({ mergedConfiguration }, 'New merged configuration');
 

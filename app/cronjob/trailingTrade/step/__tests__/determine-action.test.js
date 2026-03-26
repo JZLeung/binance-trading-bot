@@ -1310,9 +1310,10 @@ describe('determine-action.js', () => {
 
             it('should wait for a sell order because grid trade is found', () => {
               expect(result).toMatchObject({
-                action: 'sell-stop-loss',
+                action: 'sell-wait',
                 sell: {
-                  processMessage: 'you must sell'
+                  processMessage:
+                    'The current price is lower than the selling trigger price for the grid trade #1. Wait.'
                 }
               });
             });

@@ -20,6 +20,10 @@ const handleSymbolSettingUpdate = async (logger, ws, payload) => {
   const symbolConfigurationFn = async () => {
     // Get only editable params
     const { candles, buy, sell, botOptions } = newSymbolConfiguration;
+    const sanitizedBotOptions = _.omit(botOptions, [
+      'tradingViews',
+      'tradingViewOptions'
+    ]);
     symbolConfiguration.candles = candles;
 
     // We do not want to save executed/executedOrder as it will be processed in the configuration.
@@ -40,7 +44,7 @@ const handleSymbolSettingUpdate = async (logger, ws, payload) => {
       'currentGridTradeIndex',
       'currentGridTrade'
     );
-    symbolConfiguration.botOptions = botOptions;
+    symbolConfiguration.botOptions = sanitizedBotOptions;
 
     logger.info({ symbolConfiguration }, 'Updated symbol configuration');
 

@@ -69,12 +69,6 @@ class SettingIconBotOptions extends React.Component {
             <Card.Body className='px-2 py-1'>
               <div className='row'>
                 <div className='col-12'>
-                  <SettingIconBotOptionsTradingView
-                    botOptions={botOptions}
-                    handleInputChange={this.handleInputChange}
-                    handleBotOptionsChange={this.handleBotOptionsChange}
-                  />
-
                   <SettingIconBotOptionsAuthentication
                     botOptions={botOptions}
                     handleInputChange={this.handleInputChange}

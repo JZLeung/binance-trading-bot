@@ -1,7 +1,6 @@
 /* eslint-disable global-require */
 describe('latest.test.js', () => {
   const trailingTradeCommonJson = require('./fixtures/latest-trailing-trade-common.json');
-  const trailingTradeTradingView = require('./fixtures/latest-trailing-trade-tradingview.json');
   const trailingTradeSymbols = require('./fixtures/latest-trailing-trade-symbols.json');
   const trailingTradeClosedTrades = require('./fixtures/latest-trailing-trade-closed-trades.json');
 
@@ -32,6 +31,9 @@ describe('latest.test.js', () => {
     jest.clearAllMocks().resetModules();
 
     process.env.GIT_HASH = 'some-hash';
+    delete trailingTradeStateInvalidCache.stats.tradingViews;
+    delete trailingTradeStateNotAuthenticatedUnlockList.stats.tradingViews;
+    delete trailingTradeStatsAuthenticated.stats.tradingViews;
 
     mockBinanceClientGetInfo = jest.fn().mockReturnValue({
       spot: {
@@ -193,10 +195,6 @@ describe('latest.test.js', () => {
 
         if (pattern === 'trailing-trade-closed-trades:*') {
           return trailingTradeClosedTrades;
-        }
-
-        if (pattern === 'trailing-trade-tradingview:*') {
-          return trailingTradeTradingView;
         }
 
         return '';

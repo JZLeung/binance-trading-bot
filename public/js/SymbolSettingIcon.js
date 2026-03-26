@@ -49,19 +49,10 @@ class SymbolSettingIcon extends React.Component {
     this.handleModalClose('setting');
 
     // Send with symbolInfo
-    const { symbolInfo, tradingViewIntervals } = this.props;
+    const { symbolInfo } = this.props;
     const newSymbolInfo = symbolInfo;
 
     const { symbolConfiguration } = this.state;
-
-    // Sorting botOptions.tradingViews by interval
-    symbolConfiguration.botOptions.tradingViews = (
-      symbolConfiguration.botOptions.tradingViews || []
-    ).sort((a, b) => {
-      const aIdx = tradingViewIntervals.indexOf(a.interval);
-      const bIdx = tradingViewIntervals.indexOf(b.interval);
-      return aIdx - bIdx;
-    });
 
     newSymbolInfo.configuration = symbolConfiguration;
 
@@ -127,7 +118,7 @@ class SymbolSettingIcon extends React.Component {
   }
 
   render() {
-    const { symbolInfo, isAuthenticated, tradingViewIntervals } = this.props;
+    const { symbolInfo, isAuthenticated } = this.props;
     const { symbolConfiguration } = this.state;
 
     if (_.isEmpty(symbolConfiguration) || isAuthenticated === false) {
@@ -599,58 +590,6 @@ class SymbolSettingIcon extends React.Component {
                         </Card>
                       </Accordion>
 
-                      <Accordion defaultActiveKey='0'>
-                        <Card className='mt-1'>
-                          <Card.Header className='px-2 py-1'>
-                            <Accordion.Toggle
-                              as={Button}
-                              variant='link'
-                              eventKey='0'
-                              className='p-0 fs-7 text-uppercase'>
-                              TradingView{' '}
-                            </Accordion.Toggle>
-                          </Card.Header>
-                          <Accordion.Collapse eventKey='0'>
-                            <Card.Body className='px-2 py-1'>
-                              <div className='row'>
-                                <div className='col-12'>
-                                  What is{' '}
-                                  <a
-                                    href='https://www.tradingview.com/symbols/BTCUSDT/technicals/'
-                                    target='_blank'
-                                    rel='noreferrer'>
-                                    TradingView
-                                  </a>
-                                  ?{' '}
-                                  <OverlayTrigger
-                                    trigger='click'
-                                    key='bot-options-auto-trigger-buy-conditions-tradingview-when-strong-buy-overlay'
-                                    placement='bottom'
-                                    overlay={
-                                      <Popover id='bot-options-auto-trigger-buy-conditions-tradingview-when-strong-buy-overlay-right'>
-                                        <Popover.Content>
-                                          TradingView is the service that
-                                          provides technical analysis based on
-                                          various indicators such as oscillators
-                                          and moving averages. The bot is
-                                          integrated with TradingView summary
-                                          recommendation to control the buy
-                                          action.
-                                        </Popover.Content>
-                                      </Popover>
-                                    }>
-                                    <Button
-                                      variant='link'
-                                      className='p-0 m-0 ml-1 text-info'>
-                                      <i className='fas fa-question-circle fa-sm'></i>
-                                    </Button>
-                                  </OverlayTrigger>
-                                </div>
-                              </div>
-                            </Card.Body>
-                          </Accordion.Collapse>
-                        </Card>
-                      </Accordion>
                     </Card.Body>
                   </Accordion.Collapse>
                 </Card>
@@ -887,12 +826,6 @@ class SymbolSettingIcon extends React.Component {
                   </Accordion.Collapse>
                 </Card>
               </Accordion>
-
-              <SymbolSettingIconTradingView
-                botOptions={symbolConfiguration.botOptions}
-                tradingViewIntervals={tradingViewIntervals}
-                handleBotOptionsChange={this.handleBotOptionsChange}
-              />
 
               <Accordion defaultActiveKey='0'>
                 <Card className='mt-1'>

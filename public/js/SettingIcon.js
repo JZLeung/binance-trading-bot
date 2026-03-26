@@ -200,8 +200,7 @@ class SettingIcon extends React.Component {
   }
 
   render() {
-    const { isAuthenticated, exchangeSymbols, tradingViewIntervals } =
-      this.props;
+    const { isAuthenticated, exchangeSymbols } = this.props;
 
     const { configuration, quoteAssets, minNotionals, validation } = this.state;
     const { symbols: selectedSymbols } = configuration;
@@ -999,12 +998,6 @@ class SettingIcon extends React.Component {
                   </Accordion.Collapse>
                 </Card>
               </Accordion>
-
-              <SettingIconTradingView
-                botOptions={configuration.botOptions}
-                tradingViewIntervals={tradingViewIntervals}
-                handleBotOptionsChange={this.handleBotOptionsChange}
-              />
 
               <Accordion defaultActiveKey='0'>
                 <Card className='mt-1'>

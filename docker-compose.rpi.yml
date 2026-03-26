@@ -23,20 +23,6 @@ services:
       options:
         max-size: '50m'
 
-  tradingview:
-    container_name: tradingview
-    image: chrisleekr/binance-trading-bot:tradingview
-    networks:
-      - internal
-    restart: unless-stopped
-    environment:
-      # https://docs.python.org/3/howto/logging.html#logging-levels
-      - BINANCE_TRADINGVIEW_LOG_LEVEL=INFO
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '50m'
-
   binance-redis:
     container_name: binance-redis
     # From Redis 6.2.6 onwards, it does not support Raspberry Pi 32bit.

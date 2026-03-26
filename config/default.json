@@ -27,10 +27,6 @@
     "port": 27017,
     "database": "binance-bot"
   },
-  "tradingview": {
-    "host": "tradingview",
-    "port": 8080
-  },
   "slack": {
     "enabled": false,
     "webhookUrl": "",
@@ -165,10 +161,6 @@
       }
     },
     "trailingTradeIndicator": {
-      "enabled": true,
-      "cronTime": "* * * * * *"
-    },
-    "tradingView": {
       "enabled": true,
       "cronTime": "* * * * * *"
     }
