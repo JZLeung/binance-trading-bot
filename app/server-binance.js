@@ -39,12 +39,49 @@ let exchangeSymbolsInterval;
  * @param {*} symbols
  */
 const setupWebsockets = async (logger, symbols) => {
-  await Promise.all([
-    setupUserWebsocket(logger),
-    setupCandlesWebsocket(logger, symbols),
-    setupATHCandlesWebsocket(logger, symbols),
-    setupTickersWebsocket(logger, symbols)
-  ]);
+  const websocketTasks = [
+    {
+      name: 'user',
+      critical: false,
+      setup: () => setupUserWebsocket(logger)
+    },
+    {
+      name: 'candles',
+      critical: true,
+      setup: () => setupCandlesWebsocket(logger, symbols)
+    },
+    {
+      name: 'ath-candles',
+      critical: true,
+      setup: () => setupATHCandlesWebsocket(logger, symbols)
+    },
+    {
+      name: 'tickers',
+      critical: true,
+      setup: () => setupTickersWebsocket(logger, symbols)
+    }
+  ];
+
+  const websocketResults = await Promise.allSettled(
+    websocketTasks.map(task => task.setup())
+  );
+
+  websocketResults.forEach((result, index) => {
+    const { name, critical } = websocketTasks[index];
+
+    if (result.status === 'fulfilled') {
+      return;
+    }
+
+    if (critical) {
+      throw result.reason;
+    }
+
+    logger.warn(
+      { err: result.reason, websocket: name },
+      `Failed to start ${name} websocket. Continue without it.`
+    );
+  });
 
   await cache.hset(
     'trailing-trade-streams',

@@ -9,7 +9,8 @@ if (config.get('mode') === 'live') {
   binanceOptions.apiSecret = config.get('binance.live.secretKey');
 } else {
   binanceOptions.httpBase = 'https://testnet.binance.vision';
-  binanceOptions.wsBase = 'wss://testnet.binance.vision/ws';
+  // Binance Spot Test Network streams are served from stream.testnet.binance.vision.
+  binanceOptions.wsBase = 'wss://stream.testnet.binance.vision/ws';
   binanceOptions.apiKey = config.get('binance.test.apiKey');
   binanceOptions.apiSecret = config.get('binance.test.secretKey');
 }

@@ -352,6 +352,119 @@ describe('server-binance', () => {
       });
     });
 
+    describe('when user websocket fails', () => {
+      beforeEach(async () => {
+        config.get = jest.fn(key => {
+          switch (key) {
+            case 'mode':
+              return 'live';
+            default:
+              return `value-${key}`;
+          }
+        });
+
+        mockSetupUserWebsocket = jest
+          .fn()
+          .mockRejectedValue(new Error('410 Gone'));
+
+        mockSyncCandles = jest.fn().mockResolvedValue(true);
+        mockSetupCandlesWebsocket = jest.fn().mockResolvedValue(true);
+        mockGetWebsocketCandlesClean = jest
+          .fn()
+          .mockImplementation(() => ({ '1h': () => true }));
+
+        mockSyncATHCandles = jest.fn().mockResolvedValue(true);
+        mockSetupATHCandlesWebsocket = jest.fn().mockResolvedValue(true);
+        mockGetWebsocketATHCandlesClean = jest
+          .fn()
+          .mockImplementation(() => ({ '1d': () => true }));
+
+        mockSetupTickersWebsocket = jest.fn().mockResolvedValue(true);
+        mockRefreshTickersClean = jest.fn().mockResolvedValue(true);
+        mockGetWebsocketTickersClean = jest.fn().mockImplementation(() => ({
+          BTCUSDT: () => true,
+          BNBUSDT: () => true
+        }));
+
+        mockSyncOpenOrders = jest.fn().mockResolvedValue(true);
+        mockSyncDatabaseOrders = jest.fn().mockResolvedValue(true);
+
+        mockGetGlobalConfiguration = jest.fn().mockResolvedValue({
+          symbols: ['BTCUSDT', 'BNBUSDT']
+        });
+
+        mockGetAccountInfoFromAPI = jest.fn().mockResolvedValue({
+          account: 'info'
+        });
+
+        mockCacheExchangeSymbols = jest.fn().mockResolvedValue(true);
+
+        jest.mock('../cronjob/trailingTradeHelper/configuration', () => ({
+          getGlobalConfiguration: mockGetGlobalConfiguration
+        }));
+
+        jest.mock('../cronjob/trailingTradeHelper/common', () => ({
+          getAccountInfoFromAPI: mockGetAccountInfoFromAPI,
+          cacheExchangeSymbols: mockCacheExchangeSymbols
+        }));
+
+        jest.mock('../binance/user', () => ({
+          setupUserWebsocket: mockSetupUserWebsocket
+        }));
+
+        jest.mock('../binance/orders', () => ({
+          syncOpenOrders: mockSyncOpenOrders,
+          syncDatabaseOrders: mockSyncDatabaseOrders
+        }));
+
+        jest.mock('../binance/candles', () => ({
+          syncCandles: mockSyncCandles,
+          setupCandlesWebsocket: mockSetupCandlesWebsocket,
+          getWebsocketCandlesClean: mockGetWebsocketCandlesClean
+        }));
+
+        jest.mock('../binance/ath-candles', () => ({
+          syncATHCandles: mockSyncATHCandles,
+          setupATHCandlesWebsocket: mockSetupATHCandlesWebsocket,
+          getWebsocketATHCandlesClean: mockGetWebsocketATHCandlesClean
+        }));
+
+        jest.mock('../binance/tickers', () => ({
+          setupTickersWebsocket: mockSetupTickersWebsocket,
+          refreshTickersClean: mockRefreshTickersClean,
+          getWebsocketTickersClean: mockGetWebsocketTickersClean
+        }));
+
+        const { runBinance } = require('../server-binance');
+
+        await runBinance(logger);
+      });
+
+      it('continues to start other websockets', () => {
+        expect(mockSetupCandlesWebsocket).toHaveBeenCalled();
+        expect(mockSetupATHCandlesWebsocket).toHaveBeenCalled();
+        expect(mockSetupTickersWebsocket).toHaveBeenCalled();
+      });
+
+      it('logs a warning', () => {
+        expect(logger.warn).toHaveBeenCalledWith(
+          {
+            err: expect.any(Error),
+            websocket: 'user'
+          },
+          'Failed to start user websocket. Continue without it.'
+        );
+      });
+
+      it('still stores the active stream count', () => {
+        expect(mockCache.hset).toHaveBeenCalledWith(
+          'trailing-trade-streams',
+          'count',
+          1 + 4
+        );
+      });
+    });
+
     describe('when data received in check-open-orders channel', () => {
       beforeEach(async () => {
         config.get = jest.fn(key => {
