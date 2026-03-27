@@ -40,11 +40,20 @@ class SettingIcon extends React.Component {
     selectedSymbols,
     lastBuyPriceRemoveThresholds
   ) {
+    const safeSelectedSymbols = Array.isArray(selectedSymbols)
+      ? selectedSymbols
+      : [];
+    const safeLastBuyPriceRemoveThresholds = _.isPlainObject(
+      lastBuyPriceRemoveThresholds
+    )
+      ? lastBuyPriceRemoveThresholds
+      : {};
+
     const quoteAssets = [];
 
     const minNotionals = {};
 
-    selectedSymbols.forEach(symbol => {
+    safeSelectedSymbols.forEach(symbol => {
       const symbolInfo = exchangeSymbols[symbol];
       if (symbolInfo === undefined) {
         return;
@@ -55,12 +64,16 @@ class SettingIcon extends React.Component {
         minNotionals[quoteAsset] = minNotional;
       }
 
-      if (lastBuyPriceRemoveThresholds[quoteAsset] === undefined) {
-        lastBuyPriceRemoveThresholds[quoteAsset] = minNotional;
+      if (safeLastBuyPriceRemoveThresholds[quoteAsset] === undefined) {
+        safeLastBuyPriceRemoveThresholds[quoteAsset] = minNotional;
       }
     });
 
-    return { quoteAssets, minNotionals, lastBuyPriceRemoveThresholds };
+    return {
+      quoteAssets,
+      minNotionals,
+      lastBuyPriceRemoveThresholds: safeLastBuyPriceRemoveThresholds
+    };
   }
 
   isConfigChanged(nextProps) {
@@ -89,12 +102,12 @@ class SettingIcon extends React.Component {
   componentDidUpdate(nextProps) {
     if (this.isExchangeSymbolsChanged(nextProps)) {
       const { exchangeSymbols, configuration } = nextProps;
-      const { symbols: selectedSymbols } = configuration;
+      const selectedSymbols = _.get(configuration, 'symbols', []);
 
       const { quoteAssets, minNotionals } = this.getQuoteAssets(
         exchangeSymbols,
         selectedSymbols,
-        configuration.buy.lastBuyPriceRemoveThresholds
+        _.get(configuration, 'buy.lastBuyPriceRemoveThresholds', {})
       );
 
       this.setState({
@@ -108,6 +121,14 @@ class SettingIcon extends React.Component {
     if (this.isConfigChanged(nextProps)) {
       const { configuration: rawConfiguration } = nextProps;
       const configuration = _.cloneDeep(rawConfiguration);
+
+      if (Array.isArray(configuration.symbols) === false) {
+        configuration.symbols = [];
+      }
+
+      if (_.isPlainObject(configuration.buy) === false) {
+        configuration.buy = {};
+      }
 
       if (configuration.buy.lastBuyPriceRemoveThresholds === undefined) {
         configuration.buy.lastBuyPriceRemoveThresholds = {};
@@ -203,7 +224,7 @@ class SettingIcon extends React.Component {
     const { isAuthenticated, exchangeSymbols } = this.props;
 
     const { configuration, quoteAssets, minNotionals, validation } = this.state;
-    const { symbols: selectedSymbols } = configuration;
+    const selectedSymbols = _.get(configuration, 'symbols', []);
 
     if (_.isEmpty(configuration) || isAuthenticated === false) {
       return '';

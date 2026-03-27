@@ -31,21 +31,20 @@ class APIError extends React.Component {
             <p>
               You are seeing this error message because of one of the following
               situations:
-              <br />
-              <ul>
-                <li>You are using TestNet API/Secret for Live Binance.</li>
-                <li>You are using Live API/Secret for TestNet Binance.</li>
-                <li>Your API key is revoked/deleted.</li>
-                <li>
-                  Your API key is not permitted to "Enable Reading" and "Enable
-                  Spot & Margin Trading".
-                </li>
-                <li>
-                  Your API key is restricted to trusted IP, and your bot is
-                  located not in trusted IP.
-                </li>
-              </ul>
             </p>
+            <ul>
+              <li>You are using TestNet API/Secret for Live Binance.</li>
+              <li>You are using Live API/Secret for TestNet Binance.</li>
+              <li>Your API key is revoked/deleted.</li>
+              <li>
+                Your API key is not permitted to "Enable Reading" and "Enable
+                Spot & Margin Trading".
+              </li>
+              <li>
+                Your API key is restricted to trusted IP, and your bot is
+                located not in trusted IP.
+              </li>
+            </ul>
             <p>
               Please read the following document carefully, update your
               configuration. And then try to launch the bot again.

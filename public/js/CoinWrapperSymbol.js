@@ -6,7 +6,7 @@ class CoinWrapperSymbol extends React.Component {
     const { configuration, symbolInfo } = this.props;
 
     const { symbol } = symbolInfo;
-    const { symbols } = configuration;
+    const symbols = _.get(configuration, 'symbols', []);
     return symbols.includes(symbol);
   }
 
