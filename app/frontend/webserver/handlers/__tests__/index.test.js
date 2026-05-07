@@ -13,8 +13,6 @@ describe('index', () => {
   let mockHandleBackupGet;
   let mockHandleRestorePost;
 
-  let mockHandle404;
-
   let mockLoginLimiter;
 
   beforeEach(async () => {
@@ -30,8 +28,6 @@ describe('index', () => {
     mockHandleSymbolDelete = jest.fn().mockResolvedValue(true);
     mockHandleBackupGet = jest.fn().mockResolvedValue(true);
     mockHandleRestorePost = jest.fn().mockResolvedValue(true);
-
-    mockHandle404 = jest.fn().mockResolvedValue(true);
 
     mockLoginLimiter = jest.fn().mockReturnValue(true);
 
@@ -57,10 +53,6 @@ describe('index', () => {
 
     jest.mock('../grid-trade-logs-export', () => ({
       handleGridTradeLogsExport: mockHandleGridTradeLogsExport
-    }));
-
-    jest.mock('../404', () => ({
-      handle404: mockHandle404
     }));
 
     jest.mock('../status', () => ({
@@ -119,10 +111,6 @@ describe('index', () => {
 
   it('triggers handleStatus', () => {
     expect(mockHandleStatus).toHaveBeenCalledWith('logger', 'app');
-  });
-
-  it('triggers handle404', () => {
-    expect(mockHandle404).toHaveBeenCalledWith('logger', 'app');
   });
 
   it('triggers handleSymbolDelete', () => {

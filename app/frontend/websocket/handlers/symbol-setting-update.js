@@ -5,6 +5,7 @@ const {
 } = require('../../../cronjob/trailingTradeHelper/configuration');
 const queue = require('../../../cronjob/trailingTradeHelper/queue');
 const { executeTrailingTrade } = require('../../../cronjob/index');
+const { sendResponse } = require('../../transport');
 
 const handleSymbolSettingUpdate = async (logger, ws, payload) => {
   logger.info({ payload }, 'Start symbol setting update');
@@ -53,13 +54,11 @@ const handleSymbolSettingUpdate = async (logger, ws, payload) => {
     processFn: executeTrailingTrade
   });
 
-  ws.send(
-    JSON.stringify({
-      result: true,
-      symbolConfiguration,
-      type: 'symbol-setting-update-result'
-    })
-  );
+  sendResponse(ws, {
+    result: true,
+    symbolConfiguration,
+    type: 'symbol-setting-update-result'
+  });
 };
 
 module.exports = { handleSymbolSettingUpdate };

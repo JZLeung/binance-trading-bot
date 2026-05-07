@@ -6,6 +6,7 @@ const {
 } = require('../../../cronjob/trailingTradeHelper/common');
 const queue = require('../../../cronjob/trailingTradeHelper/queue');
 const { executeTrailingTrade } = require('../../../cronjob/index');
+const { sendResponse } = require('../../transport');
 
 /**
  * Delete last buy price
@@ -36,13 +37,11 @@ const deleteLastBuyPrice = async (logger, ws, symbol) => {
     postprocessFn: PubSubFn
   });
 
-  ws.send(
-    JSON.stringify({
-      result: true,
-      type: 'symbol-update-result',
-      message: `The last buy price for ${symbol} has been removed successfully.`
-    })
-  );
+  sendResponse(ws, {
+    result: true,
+    type: 'symbol-update-result',
+    message: `The last buy price for ${symbol} has been removed successfully.`
+  });
 
   return true;
 };
@@ -72,15 +71,13 @@ const updateLastBuyPrice = async (logger, ws, symbol, lastBuyPrice) => {
           ` Wait for the symbol information to be cached and try again.`
       });
 
-      ws.send(
-        JSON.stringify({
-          result: false,
-          type: 'symbol-update-last-buy-price-result',
-          message:
-            `The bot could not retrieve the cached symbol information for ${symbol}.` +
-            ` Wait for the symbol information to be cached and try again.`
-        })
-      );
+      sendResponse(ws, {
+        result: false,
+        type: 'symbol-update-last-buy-price-result',
+        message:
+          `The bot could not retrieve the cached symbol information for ${symbol}.` +
+          ` Wait for the symbol information to be cached and try again.`
+      });
       return false;
     }
 
@@ -125,13 +122,11 @@ const updateLastBuyPrice = async (logger, ws, symbol, lastBuyPrice) => {
     postprocessFn: PubSubFn
   });
 
-  ws.send(
-    JSON.stringify({
-      result: true,
-      type: 'symbol-update-result',
-      message: `The last buy price for ${symbol} has been configured successfully.`
-    })
-  );
+  sendResponse(ws, {
+    result: true,
+    type: 'symbol-update-result',
+    message: `The last buy price for ${symbol} has been configured successfully.`
+  });
 
   return true;
 };

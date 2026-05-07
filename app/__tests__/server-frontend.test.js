@@ -15,8 +15,10 @@ describe('server-frontend', () => {
   let mockFileUpload;
 
   let mockConfigureWebServer;
-  let mockConfigureWebSocket;
+  let mockConfigureAPICommand;
+  let mockConfigureSSE;
   let mockConfigureLocalTunnel;
+  let mockHandle404;
 
   let mockRateLimiterRedisGet;
   let mockRateLimiterRedis;
@@ -66,8 +68,10 @@ describe('server-frontend', () => {
     }));
 
     mockConfigureWebServer = jest.fn().mockReturnValue(true);
-    mockConfigureWebSocket = jest.fn().mockReturnValue(true);
+    mockConfigureAPICommand = jest.fn().mockReturnValue(true);
+    mockConfigureSSE = jest.fn().mockReturnValue(true);
     mockConfigureLocalTunnel = jest.fn().mockReturnValue(true);
+    mockHandle404 = jest.fn().mockReturnValue(true);
 
     mockExpressStatic = jest.fn().mockReturnValue(true);
 
@@ -141,12 +145,20 @@ describe('server-frontend', () => {
       configureWebServer: mockConfigureWebServer
     }));
 
-    jest.mock('../frontend/websocket/configure', () => ({
-      configureWebSocket: mockConfigureWebSocket
+    jest.mock('../frontend/api/command', () => ({
+      configureAPICommand: mockConfigureAPICommand
+    }));
+
+    jest.mock('../frontend/sse/configure', () => ({
+      configureSSE: mockConfigureSSE
     }));
 
     jest.mock('../frontend/local-tunnel/configure', () => ({
       configureLocalTunnel: mockConfigureLocalTunnel
+    }));
+
+    jest.mock('../frontend/webserver/handlers/404', () => ({
+      handle404: mockHandle404
     }));
   });
 
@@ -203,11 +215,25 @@ describe('server-frontend', () => {
         );
       });
 
-      it('triggers configureWebSocket', () => {
-        expect(mockConfigureWebSocket).toHaveBeenCalledWith(
+      it('triggers configureAPICommand', () => {
+        expect(mockConfigureAPICommand).toHaveBeenCalledWith(
           expect.any(Object),
           loggerMock,
           { loginLimiter: expect.any(Object) }
+        );
+      });
+
+      it('triggers configureSSE', () => {
+        expect(mockConfigureSSE).toHaveBeenCalledWith(
+          expect.any(Object),
+          loggerMock,
+        );
+      });
+
+      it('triggers handle404', () => {
+        expect(mockHandle404).toHaveBeenCalledWith(
+          loggerMock,
+          expect.any(Object)
         );
       });
 

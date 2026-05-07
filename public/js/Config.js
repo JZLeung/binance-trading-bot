@@ -2,12 +2,20 @@
 /* eslint-disable no-restricted-globals */
 
 const config = {
-  webSocketUrl:
+  eventStreamUrl:
     location.protocol === 'https:'
-      ? `wss://${location.hostname}${
+      ? `https://${location.hostname}${
           location.port !== 80 ? ':' + location.port : ''
-        }`
-      : `ws://${location.hostname}${
+        }/api/events`
+      : `http://${location.hostname}${
           location.port !== 80 ? ':' + location.port : ''
-        }`
+        }/api/events`,
+  apiCommandUrl:
+    location.protocol === 'https:'
+      ? `https://${location.hostname}${
+          location.port !== 80 ? ':' + location.port : ''
+        }/api/command`
+      : `http://${location.hostname}${
+          location.port !== 80 ? ':' + location.port : ''
+        }/api/command`
 };

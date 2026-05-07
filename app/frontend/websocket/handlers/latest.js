@@ -13,6 +13,7 @@ const {
   getCacheTrailingTradeTotalProfitAndLoss,
   getCacheTrailingTradeQuoteEstimates
 } = require('../../../cronjob/trailingTradeHelper/common');
+const { sendResponse } = require('../../transport');
 
 const handleLatest = async (logger, ws, payload) => {
   const globalConfiguration = await getConfiguration(logger);
@@ -24,19 +25,17 @@ const handleLatest = async (logger, ws, payload) => {
     payload.isAuthenticated === false &&
     globalConfiguration.botOptions.authentication.lockList === true
   ) {
-    ws.send(
-      JSON.stringify({
-        result: true,
-        type: 'latest',
-        isAuthenticated: payload.isAuthenticated,
-        botOptions: globalConfiguration.botOptions,
-        configuration: {},
-        common: {},
-        closedTradesSetting: {},
-        closedTrades: [],
-        stats: {}
-      })
-    );
+    sendResponse(ws, {
+      result: true,
+      type: 'latest',
+      isAuthenticated: payload.isAuthenticated,
+      botOptions: globalConfiguration.botOptions,
+      configuration: {},
+      common: {},
+      closedTradesSetting: {},
+      closedTrades: [],
+      stats: {}
+    });
 
     return;
   }
@@ -173,17 +172,15 @@ const handleLatest = async (logger, ws, payload) => {
     'stats'
   );
 
-  ws.send(
-    JSON.stringify({
-      result: true,
-      type: 'latest',
-      isAuthenticated: payload.isAuthenticated,
-      botOptions: globalConfiguration.botOptions,
-      configuration: globalConfiguration,
-      common,
-      stats
-    })
-  );
+  sendResponse(ws, {
+    result: true,
+    type: 'latest',
+    isAuthenticated: payload.isAuthenticated,
+    botOptions: globalConfiguration.botOptions,
+    configuration: globalConfiguration,
+    common,
+    stats
+  });
 };
 
 module.exports = { handleLatest };
