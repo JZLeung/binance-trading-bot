@@ -39,7 +39,11 @@ describe('binance', () => {
 
     it('returns client', () => {
       expect(binance).toStrictEqual({
-        client: { some: 'method' }
+        apiKey: 'value-binance.test.apiKey',
+        apiSecret: 'value-binance.test.secretKey',
+        client: { some: 'method' },
+        isLive: false,
+        userWebsocketApiBase: 'wss://ws-api.testnet.binance.vision/ws-api/v3'
       });
     });
   });
@@ -66,7 +70,11 @@ describe('binance', () => {
 
     it('returns client', () => {
       expect(binance).toStrictEqual({
-        client: { some: 'method' }
+        apiKey: 'value-binance.live.apiKey',
+        apiSecret: 'value-binance.live.secretKey',
+        client: { some: 'method' },
+        isLive: true,
+        userWebsocketApiBase: 'wss://ws-api.binance.com:443/ws-api/v3'
       });
     });
   });
