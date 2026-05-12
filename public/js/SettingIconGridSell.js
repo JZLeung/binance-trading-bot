@@ -338,7 +338,7 @@ class SettingIconGridSell extends React.Component {
                     className='mb-2'>
                     <Form.Label className='mb-0'>
                       Trigger percentage{' '}
-                      <strong>based on the last buy price</strong>{' '}
+                      <strong>based on the average buy price</strong>{' '}
                       <OverlayTrigger
                         trigger='click'
                         key={
@@ -355,7 +355,7 @@ class SettingIconGridSell extends React.Component {
                             <Popover.Content>
                               Set the trigger percentage for minimum profit.
                               i.e. if set <code>1.06</code>, minimum profit will
-                              be <code>6%</code>. So if the last sell price is{' '}
+                              be <code>6%</code>. So if the average buy price is{' '}
                               <code>$100</code>, then the bot will sell the coin
                               when the current price reaches <code>$106</code>.
                             </Popover.Content>

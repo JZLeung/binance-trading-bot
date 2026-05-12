@@ -45,7 +45,7 @@ The bot will continuously monitor the coin based on the grid trade configuration
 
 For grid trade #1, the bot will place a STOP-LOSS-LIMIT order to buy when the current price reaches the lowest price. If the current price continuously falls, then the bot will cancel the previous order and re-place the new STOP-LOSS-LIMIT order with the new price.
 
-After grid trade #1, the bot will monitor the COIN based on the last buy price.
+After grid trade #1, the bot will monitor the COIN based on the average buy price.
 
 - The bot will not place a buy order of the grid trade #1 if has enough coin (typically over $10 worth) to sell when reaches the trigger price for selling.
 - The bot will remove the last buy price if the estimated value is less than the last buy price removal threshold.
@@ -104,7 +104,7 @@ Once the coin is purchased, the bot will start monitoring the sell signal and at
 Your 2nd grid trading for buying is configured as below:
 
 - Grid#: 2
-- Current last buy price: $99.845
+- Current average buy price: $99.845
 - Trigger percentage: 0.8 (20%)
 - Stop percentage: 1.03 (3.00%)
 - Limit percentage: 1.031 (3.10%)
@@ -126,9 +126,9 @@ Let's assume the market changes as below:
 
 - Current price: $78
 
-Then the bot will execute 2nd purchase for the coin. The last buy price will be automatically re-calculated as below:
+Then the bot will execute 2nd purchase for the coin. The average buy price will be automatically re-calculated as below:
 
-- Final last buy price: ($50 + $100)/(0.5 COIN + 1.29 COIN) = $83.80
+- Final average buy price: ($50 + $100)/(0.5 COIN + 1.29 COIN) = $83.80
 
 ##### In-depth Buy Configuration in-depth
 
