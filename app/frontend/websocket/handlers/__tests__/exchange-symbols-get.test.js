@@ -5,9 +5,16 @@ describe('exchange-symbols-get.js', () => {
 
   let loggerMock;
   let cacheMock;
+  let mockCacheExchangeSymbols;
 
   beforeEach(() => {
     jest.clearAllMocks().resetModules();
+
+    mockCacheExchangeSymbols = jest.fn().mockResolvedValue(true);
+
+    jest.mock('../../../../cronjob/trailingTradeHelper/common', () => ({
+      cacheExchangeSymbols: mockCacheExchangeSymbols
+    }));
 
     mockWebSocketServerWebSocketSend = jest.fn().mockResolvedValue(true);
 
@@ -40,6 +47,10 @@ describe('exchange-symbols-get.js', () => {
       );
     });
 
+    it('does not trigger cacheExchangeSymbols', () => {
+      expect(mockCacheExchangeSymbols).not.toHaveBeenCalled();
+    });
+
     it('returns expected value', () => {
       expect(mockWebSocketServerWebSocketSend).toHaveBeenCalledWith(
         JSON.stringify({
@@ -68,12 +79,62 @@ describe('exchange-symbols-get.js', () => {
       );
     });
 
+    it('triggers cacheExchangeSymbols', () => {
+      expect(mockCacheExchangeSymbols).toHaveBeenCalledWith(loggerMock);
+    });
+
+    it('triggers cache.hget twice', () => {
+      expect(cacheMock.hget).toHaveBeenCalledTimes(2);
+    });
+
     it('returns expected value', () => {
       expect(mockWebSocketServerWebSocketSend).toHaveBeenCalledWith(
         JSON.stringify({
           result: true,
           type: 'exchange-symbols-get-result',
           exchangeSymbols: {}
+        })
+      );
+    });
+  });
+
+  describe('when cache is refreshed successfully', () => {
+    beforeEach(async () => {
+      cacheMock.hget = jest
+        .fn()
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(
+          JSON.stringify({
+            BTCUSDT: {
+              symbol: 'BTCUSDT',
+              status: 'TRADING',
+              quoteAsset: 'USDT',
+              minNotional: 10
+            }
+          })
+        );
+
+      const { handleExchangeSymbolsGet } = require('../exchange-symbols-get');
+      await handleExchangeSymbolsGet(loggerMock, mockWebSocketServer, {});
+    });
+
+    it('triggers cacheExchangeSymbols', () => {
+      expect(mockCacheExchangeSymbols).toHaveBeenCalledWith(loggerMock);
+    });
+
+    it('returns refreshed value', () => {
+      expect(mockWebSocketServerWebSocketSend).toHaveBeenCalledWith(
+        JSON.stringify({
+          result: true,
+          type: 'exchange-symbols-get-result',
+          exchangeSymbols: {
+            BTCUSDT: {
+              symbol: 'BTCUSDT',
+              status: 'TRADING',
+              quoteAsset: 'USDT',
+              minNotional: 10
+            }
+          }
         })
       );
     });
