@@ -6,6 +6,7 @@ describe('ensure-grid-trade-order-executed.js', () => {
   let rawData;
 
   let slackMock;
+  let telegramMock;
   let loggerMock;
   let PubSubMock;
 
@@ -32,15 +33,22 @@ describe('ensure-grid-trade-order-executed.js', () => {
           jest.requireActual('moment')(nextCheck || '2020-01-02T00:00:00+00:00')
       );
 
-      const { slack, logger, PubSub } = require('../../../../helpers');
+      const {
+        slack,
+        telegram,
+        logger,
+        PubSub
+      } = require('../../../../helpers');
 
       slackMock = slack;
+      telegramMock = telegram;
       loggerMock = logger;
       PubSubMock = PubSub;
 
       PubSubMock.publish = jest.fn().mockResolvedValue(true);
 
       slackMock.sendMessage = jest.fn().mockResolvedValue(true);
+      telegramMock.sendMessage = jest.fn().mockResolvedValue(true);
 
       mockCalculateLastBuyPrice = jest.fn().mockResolvedValue(true);
       mockGetAPILimit = jest.fn().mockReturnValue(10);
@@ -663,9 +671,29 @@ describe('ensure-grid-trade-order-executed.js', () => {
                   }
                 );
               });
+
+              it('triggers telegram.sendMessage due to filled order', () => {
+                expect(telegramMock.sendMessage).toHaveBeenCalledWith(
+                  expect.stringContaining('Order Filled'),
+                  {
+                    apiLimit: 10,
+                    symbol: t.symbol
+                  }
+                );
+              });
             } else {
               it('does not trigger slack.sendMessage due to filled order', () => {
                 expect(slackMock.sendMessage).not.toHaveBeenCalledWith(
+                  expect.stringContaining('Order Filled'),
+                  {
+                    apiLimit: 10,
+                    symbol: t.symbol
+                  }
+                );
+              });
+
+              it('does not trigger telegram.sendMessage due to filled order', () => {
+                expect(telegramMock.sendMessage).not.toHaveBeenCalledWith(
                   expect.stringContaining('Order Filled'),
                   {
                     apiLimit: 10,
@@ -719,9 +747,29 @@ describe('ensure-grid-trade-order-executed.js', () => {
                   }
                 );
               });
+
+              it('triggers telegram.sendMessage due to cancelled order', () => {
+                expect(telegramMock.sendMessage).toHaveBeenCalledWith(
+                  expect.stringContaining('Order Removed'),
+                  {
+                    apiLimit: 10,
+                    symbol: t.symbol
+                  }
+                );
+              });
             } else {
               it('does not trigger slack.sendMessage due to cancelled order', () => {
                 expect(slackMock.sendMessage).not.toHaveBeenCalledWith(
+                  expect.stringContaining('Order Removed'),
+                  {
+                    apiLimit: 10,
+                    symbol: t.symbol
+                  }
+                );
+              });
+
+              it('does not trigger telegram.sendMessage due to cancelled order', () => {
+                expect(telegramMock.sendMessage).not.toHaveBeenCalledWith(
                   expect.stringContaining('Order Removed'),
                   {
                     apiLimit: 10,
@@ -1193,6 +1241,16 @@ describe('ensure-grid-trade-order-executed.js', () => {
                 }
               );
             });
+
+            it('triggers telegram.sendMessage due to filled order', () => {
+              expect(telegramMock.sendMessage).toHaveBeenCalledWith(
+                expect.stringContaining('Order Filled'),
+                {
+                  apiLimit: 10,
+                  symbol: t.symbol
+                }
+              );
+            });
           } else if (
             ['CANCELED', 'REJECTED', 'EXPIRED', 'PENDING_CANCEL'].includes(
               t.lastSellOrder.status
@@ -1230,6 +1288,16 @@ describe('ensure-grid-trade-order-executed.js', () => {
 
             it('triggers slack.sendMessage due to cancelled order', () => {
               expect(slackMock.sendMessage).toHaveBeenCalledWith(
+                expect.stringContaining('Order Removed'),
+                {
+                  apiLimit: 10,
+                  symbol: t.symbol
+                }
+              );
+            });
+
+            it('triggers telegram.sendMessage due to cancelled order', () => {
+              expect(telegramMock.sendMessage).toHaveBeenCalledWith(
                 expect.stringContaining('Order Removed'),
                 {
                   apiLimit: 10,
