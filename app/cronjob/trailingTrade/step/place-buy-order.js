@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const moment = require('moment');
-const { binance, slack } = require('../../../helpers');
+const { binance, slack, telegram } = require('../../../helpers');
 const {
   isExceedAPILimit,
   getAPILimit,
@@ -287,6 +287,14 @@ const execute = async (logger, rawData) => {
       { symbol, apiLimit: getAPILimit(logger) }
     );
 
+  if (notifyDebug || notifyOrderConfirm)
+    telegram.sendMessage(
+      `*${symbol}* Action - Buy Trade #${humanisedGridTradeIndex}: *STOP_LOSS_LIMIT*\n` +
+        `- Order Params: \n` +
+        `\`\`\`${JSON.stringify(notifyMessage, undefined, 2)}\`\`\``,
+      { symbol, apiLimit: getAPILimit(logger) }
+    );
+
   logger.info(
     {
       function: 'order',
@@ -324,6 +332,17 @@ const execute = async (logger, rawData) => {
 
   if (notifyDebug || notifyOrderConfirm)
     slack.sendMessage(
+      `*${symbol}* Buy Action Grid Trade #${humanisedGridTradeIndex} Result: *STOP_LOSS_LIMIT*\n` +
+        `- Order Result: \`\`\`${JSON.stringify(
+          orderResult,
+          undefined,
+          2
+        )}\`\`\``,
+      { symbol, apiLimit: getAPILimit(logger) }
+    );
+
+  if (notifyDebug || notifyOrderConfirm)
+    telegram.sendMessage(
       `*${symbol}* Buy Action Grid Trade #${humanisedGridTradeIndex} Result: *STOP_LOSS_LIMIT*\n` +
         `- Order Result: \`\`\`${JSON.stringify(
           orderResult,

@@ -9,6 +9,7 @@ describe('place-buy-order.js', () => {
 
   let binanceMock;
   let slackMock;
+  let telegramMock;
   let loggerMock;
 
   let mockIsExceedAPILimit;
@@ -33,13 +34,20 @@ describe('place-buy-order.js', () => {
     });
 
     beforeEach(async () => {
-      const { binance, slack, logger } = require('../../../../helpers');
+      const {
+        binance,
+        slack,
+        telegram,
+        logger
+      } = require('../../../../helpers');
 
       binanceMock = binance;
       slackMock = slack;
+      telegramMock = telegram;
       loggerMock = logger;
 
       slackMock.sendMessage = jest.fn().mockResolvedValue(true);
+      telegramMock.sendMessage = jest.fn().mockResolvedValue(true);
       binanceMock.client.order = jest.fn().mockResolvedValue(true);
 
       mockIsExceedAPILimit = jest.fn().mockReturnValue(false);
@@ -2547,8 +2555,20 @@ describe('place-buy-order.js', () => {
           );
         });
 
+        it('triggers telegram.sendMessage for buy action', () => {
+          expect(telegramMock.sendMessage.mock.calls[0][0]).toContain(
+            '*BTCUPUSDT* Action - Buy Trade #1: *STOP_LOSS_LIMIT'
+          );
+        });
+
         it('triggers slack.sendMessage for buy result', () => {
           expect(slackMock.sendMessage.mock.calls[1][0]).toContain(
+            '*BTCUPUSDT* Buy Action Grid Trade #1 Result: *STOP_LOSS_LIMIT*'
+          );
+        });
+
+        it('triggers telegram.sendMessage for buy result', () => {
+          expect(telegramMock.sendMessage.mock.calls[1][0]).toContain(
             '*BTCUPUSDT* Buy Action Grid Trade #1 Result: *STOP_LOSS_LIMIT*'
           );
         });
