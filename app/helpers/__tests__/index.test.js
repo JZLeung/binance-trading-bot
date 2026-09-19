@@ -6,6 +6,7 @@ describe('index.js', () => {
       cache: expect.any(Object),
       logger: expect.any(Object),
       slack: expect.any(Object),
+      telegram: expect.any(Object),
       binance: expect.any(Object),
       mongo: expect.any(Object),
       PubSub: expect.any(Object)
