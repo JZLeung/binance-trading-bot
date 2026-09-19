@@ -30,8 +30,6 @@ describe('telegram', () => {
 
     describe('when telegram is enabled', () => {
       beforeEach(async () => {
-        process.env.NODE_ENV = 'live';
-
         config.get = jest.fn(key => {
           switch (key) {
             case 'telegram.enabled':
