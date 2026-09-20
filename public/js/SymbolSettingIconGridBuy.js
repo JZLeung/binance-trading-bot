@@ -233,7 +233,7 @@ class SymbolSettingIconGridBuy extends React.Component {
                       <strong>
                         {i === 0
                           ? `based on the lowest price`
-                          : `based on the last buy price`}
+                          : `based on the average buy price`}
                       </strong>{' '}
                       <OverlayTrigger
                         trigger='click'
@@ -264,8 +264,8 @@ class SymbolSettingIconGridBuy extends React.Component {
                               ) : (
                                 <React.Fragment>
                                   Set the trigger percentage for buying based on
-                                  the last buy price. i.e. if set{' '}
-                                  <code>0.8</code> and the last buy price is{' '}
+                                  the average buy price. i.e. if set{' '}
+                                  <code>0.8</code> and the average buy price is{' '}
                                   <code>$100</code>, then the bot will buy the
                                   coin when the current price reaches{' '}
                                   <code>$80</code>. You cannot set higher than

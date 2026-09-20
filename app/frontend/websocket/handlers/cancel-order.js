@@ -5,6 +5,7 @@ const {
 } = require('../../../cronjob/trailingTradeHelper/common');
 const queue = require('../../../cronjob/trailingTradeHelper/queue');
 const { executeTrailingTrade } = require('../../../cronjob/index');
+const { sendResponse } = require('../../transport');
 
 const handleCancelOrder = async (logger, ws, payload) => {
   logger.info({ payload }, 'Start cancel order');
@@ -35,13 +36,11 @@ const handleCancelOrder = async (logger, ws, payload) => {
     processFn: executeTrailingTrade
   });
 
-  ws.send(
-    JSON.stringify({
-      result: true,
-      type: 'cancel-order-result',
-      message: `Cancelling the ${side.toLowerCase()} order action has been received.`
-    })
-  );
+  sendResponse(ws, {
+    result: true,
+    type: 'cancel-order-result',
+    message: `Cancelling the ${side.toLowerCase()} order action has been received.`
+  });
 };
 
 module.exports = { handleCancelOrder };

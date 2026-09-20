@@ -1,7 +1,7 @@
 const moment = require('moment');
 const _ = require('lodash');
 
-const { slack, PubSub } = require('../../../helpers');
+const { slack, telegram, PubSub } = require('../../../helpers');
 const {
   calculateLastBuyPrice,
   getAPILimit,
@@ -77,6 +77,12 @@ const slackMessageOrderFilled = async (
         `- Order Result: \`\`\`${JSON.stringify(order, undefined, 2)}\`\`\``,
       { symbol, apiLimit: getAPILimit(logger) }
     );
+
+    telegram.sendMessage(
+      `*${symbol}* ${side.toUpperCase()} Grid Trade #${humanisedGridTradeIndex} Order Filled: *${type}*\n` +
+        `- Order Result: \`\`\`${JSON.stringify(order, undefined, 2)}\`\`\``,
+      { symbol, apiLimit: getAPILimit(logger) }
+    );
   }
 
   return true;
@@ -121,6 +127,12 @@ const slackMessageOrderDeleted = async (
 
   if (notifyOrderExecute) {
     slack.sendMessage(
+      `*${symbol}* ${side.toUpperCase()} Grid Trade #${humanisedGridTradeIndex} Order Removed: *${type}*\n` +
+        `- Order Result: \`\`\`${JSON.stringify(order, undefined, 2)}\`\`\``,
+      { symbol, apiLimit: getAPILimit(logger) }
+    );
+
+    telegram.sendMessage(
       `*${symbol}* ${side.toUpperCase()} Grid Trade #${humanisedGridTradeIndex} Order Removed: *${type}*\n` +
         `- Order Result: \`\`\`${JSON.stringify(order, undefined, 2)}\`\`\``,
       { symbol, apiLimit: getAPILimit(logger) }

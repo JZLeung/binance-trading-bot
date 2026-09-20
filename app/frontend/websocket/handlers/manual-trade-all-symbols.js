@@ -9,6 +9,7 @@ const {
 } = require('../../../cronjob/trailingTradeHelper/common');
 const queue = require('../../../cronjob/trailingTradeHelper/queue');
 const { executeTrailingTrade } = require('../../../cronjob/index');
+const { sendResponse } = require('../../transport');
 
 const handleManualTradeAllSymbols = async (logger, ws, payload) => {
   logger.info({ payload }, 'Start manual trade all symbols');
@@ -127,13 +128,11 @@ const handleManualTradeAllSymbols = async (logger, ws, payload) => {
     });
   }
 
-  ws.send(
-    JSON.stringify({
-      result: true,
-      type: 'manual-trade-all-symbols-result',
-      message: 'The orders have been received.'
-    })
-  );
+  sendResponse(ws, {
+    result: true,
+    type: 'manual-trade-all-symbols-result',
+    message: 'The orders have been received.'
+  });
 };
 
 module.exports = { handleManualTradeAllSymbols };

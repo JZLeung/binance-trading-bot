@@ -2,6 +2,7 @@ const {
   getAccountInfo,
   extendBalancesWithDustTransfer
 } = require('../../../cronjob/trailingTradeHelper/common');
+const { sendResponse } = require('../../transport');
 
 const handleDustTransferGet = async (logger, ws, payload) => {
   logger.info({ payload }, 'Start dust transfer get');
@@ -25,13 +26,11 @@ const handleDustTransferGet = async (logger, ws, payload) => {
     []
   );
 
-  ws.send(
-    JSON.stringify({
-      result: true,
-      type: 'dust-transfer-get-result',
-      dustTransfer
-    })
-  );
+  sendResponse(ws, {
+    result: true,
+    type: 'dust-transfer-get-result',
+    dustTransfer
+  });
 };
 
 module.exports = { handleDustTransferGet };

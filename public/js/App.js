@@ -6,7 +6,7 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-      webSocket: {
+      eventStream: {
         instance: null,
         connected: false
       },
@@ -63,10 +63,11 @@ class App extends React.Component {
       page: 1,
       totalPages: 1,
       tradingViewIntervals: ['1m', '5m', '15m', '30m', '1h', '2h', '4h', '1d'],
-      tradingViews: []
+      tradingViews: [],
+      eventStreamDisconnectedNotified: false
     };
     this.requestLatest = this.requestLatest.bind(this);
-    this.connectWebSocket = this.connectWebSocket.bind(this);
+    this.connectEventStream = this.connectEventStream.bind(this);
     this.sendWebSocket = this.sendWebSocket.bind(this);
     this.setSortOption = this.setSortOption.bind(this);
     this.setSearchKeyword = this.setSearchKeyword.bind(this);
@@ -160,12 +161,69 @@ class App extends React.Component {
     });
   }
 
-  connectWebSocket() {
-    const instance = new WebSocket(config.webSocketUrl);
+  handleCommandResponse(response) {
+    if (!response) {
+      return;
+    }
+
+    if (response.type === 'latest') {
+      this.setState({
+        isLoaded: true,
+        isAuthenticated: response.isAuthenticated,
+        botOptions: response.botOptions,
+        configuration: response.configuration,
+        orderStats: response.common.orderStats,
+        closedTradesSetting: _.get(response, ['common', 'closedTradesSetting'], {}),
+        closedTrades: _.get(response, ['common', 'closedTrades'], []),
+        symbols: _.get(response, ['stats', 'symbols'], []),
+        packageVersion: _.get(response, ['common', 'version'], ''),
+        gitHash: _.get(response, ['common', 'gitHash'], ''),
+        accountInfo: _.get(response, ['common', 'accountInfo'], {}),
+        publicURL: _.get(response, ['common', 'publicURL'], ''),
+        apiInfo: _.get(response, ['common', 'apiInfo'], {}),
+        totalProfitAndLoss: _.get(response, ['common', 'totalProfitAndLoss'], ''),
+        streamsCount: _.get(response, ['common', 'streamsCount'], 0),
+        monitoringSymbolsCount: _.get(
+          response,
+          ['common', 'monitoringSymbolsCount'],
+          0
+        ),
+        cachedMonitoringSymbolsCount: _.get(
+          response,
+          ['common', 'cachedMonitoringSymbolsCount'],
+          0
+        ),
+        totalPages: _.get(response, ['common', 'totalPages'], 1),
+        tradingViews: _.get(response, ['stats', 'tradingViews'], [])
+      });
+    }
+
+    if (response.type === 'notification') {
+      this.toast({
+        type: response.message.type,
+        title: response.message.title
+      });
+    }
+
+    if (response.type === 'dust-transfer-get-result') {
+      this.setState({
+        dustTransfer: response.dustTransfer
+      });
+    }
+
+    if (response.type === 'exchange-symbols-get-result') {
+      this.setState({
+        exchangeSymbols: response.exchangeSymbols
+      });
+    }
+  }
+
+  connectEventStream() {
+    const instance = new EventSource(config.eventStreamUrl);
 
     this.setState(prevState => ({
-      webSocket: {
-        ...prevState.webSocket,
+      eventStream: {
+        ...prevState.eventStream,
         instance
       }
     }));
@@ -173,16 +231,17 @@ class App extends React.Component {
     const self = this;
 
     instance.onopen = () => {
-      console.log('Connection is successfully established.');
+      console.log('SSE connection is successfully established.');
       this.toast({
         type: 'success',
         title: 'Connected to the bot.'
       });
       self.setState(prevState => ({
-        webSocket: {
-          ...prevState.webSocket,
+        eventStream: {
+          ...prevState.eventStream,
           connected: true
-        }
+        },
+        eventStreamDisconnectedNotified: false
       }));
     };
 
@@ -191,85 +250,30 @@ class App extends React.Component {
       try {
         response = JSON.parse(evt.data);
       } catch (_e) {}
-
-      if (response.type === 'latest') {
-        // Set states
-        self.setState({
-          isLoaded: true,
-          isAuthenticated: response.isAuthenticated,
-          botOptions: response.botOptions,
-          configuration: response.configuration,
-          orderStats: response.common.orderStats,
-          closedTradesSetting: _.get(
-            response,
-            ['common', 'closedTradesSetting'],
-            {}
-          ),
-          closedTrades: _.get(response, ['common', 'closedTrades'], []),
-          symbols: _.get(response, ['stats', 'symbols'], []),
-          packageVersion: _.get(response, ['common', 'version'], ''),
-          gitHash: _.get(response, ['common', 'gitHash'], ''),
-          accountInfo: _.get(response, ['common', 'accountInfo'], {}),
-          publicURL: _.get(response, ['common', 'publicURL'], ''),
-          apiInfo: _.get(response, ['common', 'apiInfo'], {}),
-          totalProfitAndLoss: _.get(
-            response,
-            ['common', 'totalProfitAndLoss'],
-            ''
-          ),
-          streamsCount: _.get(response, ['common', 'streamsCount'], 0),
-          monitoringSymbolsCount: _.get(
-            response,
-            ['common', 'monitoringSymbolsCount'],
-            0
-          ),
-          cachedMonitoringSymbolsCount: _.get(
-            response,
-            ['common', 'cachedMonitoringSymbolsCount'],
-            0
-          ),
-          totalPages: _.get(response, ['common', 'totalPages'], 1),
-          tradingViews: _.get(response, ['stats', 'tradingViews'], [])
-        });
-      }
-
-      if (response.type === 'notification') {
-        this.toast({
-          type: response.message.type,
-          title: response.message.title
-        });
-      }
-
-      if (response.type === 'dust-transfer-get-result') {
-        self.setState({
-          dustTransfer: response.dustTransfer
-        });
-      }
-
-      if (response.type === 'exchange-symbols-get-result') {
-        self.setState({
-          exchangeSymbols: response.exchangeSymbols
-        });
-      }
+      self.handleCommandResponse(response);
     };
 
-    instance.onclose = () => {
-      console.log('Socket is closed. Reconnect will be attempted in 1 second.');
+    instance.onerror = () => {
+      console.log(
+        'Event stream is disconnected. Reconnect will be attempted automatically.'
+      );
 
-      this.toast({
-        type: 'info',
-        title: 'Disconnected from the bot. Reconnecting...'
-      });
-      self.setState(prevState => ({
-        webSocket: {
-          ...prevState.webSocket,
-          connected: false
+      self.setState(prevState => {
+        if (prevState.eventStreamDisconnectedNotified === false) {
+          this.toast({
+            type: 'info',
+            title: 'Disconnected from the bot. Reconnecting...'
+          });
         }
-      }));
 
-      setTimeout(function () {
-        self.connectWebSocket();
-      }, 1000);
+        return {
+          eventStream: {
+            ...prevState.eventStream,
+            connected: false
+          },
+          eventStreamDisconnectedNotified: true
+        };
+      });
     };
   }
 
@@ -289,14 +293,19 @@ class App extends React.Component {
     );
   }
 
-  sendWebSocket(command, data = {}) {
-    const { instance, connected } = this.state.webSocket;
+  async sendWebSocket(command, data = {}) {
+    const authToken = localStorage.getItem('authToken') || '';
 
-    if (connected) {
-      const authToken = localStorage.getItem('authToken') || '';
-
-      instance.send(JSON.stringify({ command, authToken, data }));
-    }
+    return axios
+      .post(config.apiCommandUrl, { command, authToken, data })
+      .then(response => {
+        this.handleCommandResponse(response.data);
+        return response.data;
+      })
+      .catch(error => {
+        console.log(error);
+        return null;
+      });
   }
 
   setSortOption(newSortOption) {
@@ -352,18 +361,27 @@ class App extends React.Component {
       selectedSortOption
     });
 
-    this.connectWebSocket();
+    this.connectEventStream();
+    this.requestLatest();
 
     this.timerID = setInterval(() => this.requestLatest(), 1000);
   }
 
   componentWillUnmount() {
     clearInterval(this.timerID);
+
+    const {
+      eventStream: { instance }
+    } = this.state;
+
+    if (instance) {
+      instance.close();
+    }
   }
 
   render() {
     const {
-      webSocket: { connected },
+      eventStream: { connected },
       packageVersion,
       gitHash,
       exchangeSymbols,

@@ -6,6 +6,7 @@ const {
   saveGlobalConfiguration,
   deleteAllSymbolConfiguration
 } = require('../../../cronjob/trailingTradeHelper/configuration');
+const { sendResponse } = require('../../transport');
 
 /**
  * Quick fix to delete all cached symbol info
@@ -81,13 +82,11 @@ const handleSettingUpdate = async (logger, ws, payload) => {
     await deleteAllSymbolConfiguration(logger);
   }
 
-  ws.send(
-    JSON.stringify({
-      result: true,
-      type: 'setting-update-result',
-      newConfiguration: mergedConfiguration
-    })
-  );
+  sendResponse(ws, {
+    result: true,
+    type: 'setting-update-result',
+    newConfiguration: mergedConfiguration
+  });
 };
 
 module.exports = { handleSettingUpdate };

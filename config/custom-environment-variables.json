@@ -55,6 +55,14 @@
     "channel": "BINANCE_SLACK_CHANNEL",
     "username": "BINANCE_SLACK_USERNAME"
   },
+  "telegram": {
+    "enabled": {
+      "__name": "BINANCE_TELEGRAM_ENABLED",
+      "__format": "boolean"
+    },
+    "botToken": "BINANCE_TELEGRAM_BOT_TOKEN",
+    "chatId": "BINANCE_TELEGRAM_CHAT_ID"
+  },
   "localTunnel": {
     "enabled": {
       "__name": "BINANCE_LOCAL_TUNNEL_ENABLED",

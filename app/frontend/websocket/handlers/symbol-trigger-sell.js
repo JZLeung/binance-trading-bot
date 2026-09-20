@@ -5,6 +5,7 @@ const {
 } = require('../../../cronjob/trailingTradeHelper/common');
 const queue = require('../../../cronjob/trailingTradeHelper/queue');
 const { executeTrailingTrade } = require('../../../cronjob/index');
+const { sendResponse } = require('../../transport');
 
 const handleSymbolTriggerSell = async (logger, ws, payload) => {
   logger.info({ payload }, 'Start symbol trigger sell');
@@ -32,7 +33,7 @@ const handleSymbolTriggerSell = async (logger, ws, payload) => {
     processFn: executeTrailingTrade
   });
 
-  ws.send(JSON.stringify({ result: true, type: 'symbol-trigger-sell-result' }));
+  sendResponse(ws, { result: true, type: 'symbol-trigger-sell-result' });
 };
 
 module.exports = { handleSymbolTriggerSell };

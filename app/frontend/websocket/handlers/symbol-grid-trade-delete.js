@@ -10,6 +10,7 @@ const {
 
 const queue = require('../../../cronjob/trailingTradeHelper/queue');
 const { executeTrailingTrade } = require('../../../cronjob/index');
+const { sendResponse } = require('../../transport');
 
 const handleSymbolGridTradeDelete = async (logger, ws, payload) => {
   logger.info({ payload }, 'Start grid trade delete');
@@ -48,9 +49,7 @@ const handleSymbolGridTradeDelete = async (logger, ws, payload) => {
     processFn: executeTrailingTrade
   });
 
-  ws.send(
-    JSON.stringify({ result: true, type: 'symbol-grid-trade-delete-result' })
-  );
+  sendResponse(ws, { result: true, type: 'symbol-grid-trade-delete-result' });
 };
 
 module.exports = { handleSymbolGridTradeDelete };

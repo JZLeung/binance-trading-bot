@@ -37,6 +37,11 @@
     "channel": "",
     "username": ""
   },
+  "telegram": {
+    "enabled": false,
+    "botToken": "",
+    "chatId": ""
+  },
   "localTunnel": {
     "enabled": true,
     "subdomain": "default"

@@ -4,6 +4,7 @@ const {
 } = require('../../../cronjob/trailingTradeHelper/configuration');
 const queue = require('../../../cronjob/trailingTradeHelper/queue');
 const { executeTrailingTrade } = require('../../../cronjob/index');
+const { sendResponse } = require('../../transport');
 
 const handleSymbolSettingDelete = async (logger, ws, payload) => {
   logger.info({ payload }, 'Start symbol setting delete');
@@ -22,9 +23,7 @@ const handleSymbolSettingDelete = async (logger, ws, payload) => {
     processFn: executeTrailingTrade
   });
 
-  ws.send(
-    JSON.stringify({ result: true, type: 'symbol-setting-delete-result' })
-  );
+  sendResponse(ws, { result: true, type: 'symbol-setting-delete-result' });
 };
 
 module.exports = { handleSymbolSettingDelete };

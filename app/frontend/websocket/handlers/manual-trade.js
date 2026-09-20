@@ -5,6 +5,7 @@ const {
 } = require('../../../cronjob/trailingTradeHelper/common');
 const queue = require('../../../cronjob/trailingTradeHelper/queue');
 const { executeTrailingTrade } = require('../../../cronjob/index');
+const { sendResponse } = require('../../transport');
 
 const handleManualTrade = async (logger, ws, payload) => {
   logger.info({ payload }, 'Start manual trade');
@@ -33,13 +34,11 @@ const handleManualTrade = async (logger, ws, payload) => {
     processFn: executeTrailingTrade
   });
 
-  ws.send(
-    JSON.stringify({
-      result: true,
-      type: 'manual-trade-result',
-      message: 'The order has been received.'
-    })
-  );
+  sendResponse(ws, {
+    result: true,
+    type: 'manual-trade-result',
+    message: 'The order has been received.'
+  });
 };
 
 module.exports = { handleManualTrade };

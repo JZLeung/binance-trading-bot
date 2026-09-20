@@ -23,8 +23,10 @@ const loginLimiter = new RateLimiterRedis({
 });
 
 const { configureWebServer } = require('./frontend/webserver/configure');
-const { configureWebSocket } = require('./frontend/websocket/configure');
+const { configureAPICommand } = require('./frontend/api/command');
+const { configureSSE } = require('./frontend/sse/configure');
 const { configureLocalTunnel } = require('./frontend/local-tunnel/configure');
+const { handle404 } = require('./frontend/webserver/handlers/404');
 
 const runFrontend = async serverLogger => {
   const logger = serverLogger.child({ server: 'frontend' });
@@ -78,7 +80,9 @@ const runFrontend = async serverLogger => {
   }
 
   await configureWebServer(app, logger, { loginLimiter });
-  await configureWebSocket(server, logger, { loginLimiter });
+  await configureAPICommand(app, logger, { loginLimiter });
+  await configureSSE(app, logger);
+  await handle404(logger, app);
   await configureLocalTunnel(logger);
 };
 
